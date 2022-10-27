@@ -2,13 +2,13 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
-/[Ll]ibrary/
-/[Tt]emp/
-/[Oo]bj/
-/[Bb]uild/
-/[Bb]uilds/
-/[Ll]ogs/
-/[Mm]emoryCaptures/
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
@@ -58,3 +58,14 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+*.asset
+*.meta
+*.config
+COD Zombies Remake/.vsconfig
+*.unity
+COD Zombies Remake/UserSettings/Layouts/default-2021.dwlt
+COD Zombies Remake/ProjectSettings/SceneTemplateSettings.json
+COD Zombies Remake/ProjectSettings/ProjectVersion.txt
+COD Zombies Remake/ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
+COD Zombies Remake/Packages/packages-lock.json
+COD Zombies Remake/Packages/manifest.json

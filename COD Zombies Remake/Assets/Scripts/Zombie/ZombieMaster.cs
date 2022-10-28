@@ -6,6 +6,8 @@ public class ZombieMaster : MonoBehaviour
 {
     public List<ZombieManager> zombieManagers;
 
+    private EnviromentManager envManager;
+
     // For now, simple just grab all the zombie manangers from children - will later be handled by wave mananger
     private void Start()
     {
@@ -16,5 +18,20 @@ public class ZombieMaster : MonoBehaviour
         {
             manager.Setup(this);
         }
+    }
+   
+    public void Setup(EnviromentManager _envManager)
+    {
+        envManager = _envManager;
+    }
+
+    public Transform GetClosestWindow(Transform zombieRequestor)
+    {
+        return envManager.GetClosestWindowBarricade(zombieRequestor);
+    }
+
+    public Transform GetPlayerTransform()
+    {
+        return envManager.GetPlayerTransform();
     }
 }

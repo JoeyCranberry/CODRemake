@@ -7,6 +7,9 @@ public class PlayerManager : MonoBehaviour
     private PlayerController controller;
     private PlayerHealthManager healthManager;
     private PlayerMoneyManager moneyManager;
+    private PlayerBarricadeBuilder barricadeBuilder;
+
+    private bool inBarricadeActionArea = false;
 
     private Transform playerBody;
 
@@ -16,6 +19,7 @@ public class PlayerManager : MonoBehaviour
         controller = gameObject.GetComponent<PlayerController>();
         healthManager = gameObject.GetComponent<PlayerHealthManager>();
         moneyManager = gameObject.GetComponent<PlayerMoneyManager>();
+        barricadeBuilder = gameObject.GetComponent<PlayerBarricadeBuilder>();
 
         SetupChildrenManagers();
 
@@ -27,5 +31,35 @@ public class PlayerManager : MonoBehaviour
         controller.Setup(this);
         healthManager.Setup(this);
         moneyManager.Setup(this);
+        barricadeBuilder.Setup(this);
+    }
+
+
+    private void Update()
+    {
+        if(inBarricadeActionArea)
+        {
+            if(Input.GetKeyDown(KeyCode.E))
+            {
+                barricadeBuilder.StartBuilding();
+            }
+
+            if(Input.GetKeyUp(KeyCode.E))
+            {
+                barricadeBuilder.StopBuilding();
+            }
+        }
+    }
+    
+    public void EnteredBarricadeActionArea(WindowBarricade barricade)
+    {
+        barricadeBuilder.EnteredBarricadeActionArea(barricade);
+        inBarricadeActionArea = true;
+    }
+
+    public void ExitedBarricadeActionArea(WindowBarricade barricade)
+    {
+        barricadeBuilder.ExitedBarricadeActionArea(barricade);
+        inBarricadeActionArea = false;
     }
 }

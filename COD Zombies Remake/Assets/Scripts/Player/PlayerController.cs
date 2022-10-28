@@ -58,7 +58,6 @@ public class PlayerController : MonoBehaviour
 
     private float desiredX;
     private bool cancellingGrounded;
-    private float curDashCooldown = -1f;
 
     private void Awake()
     {

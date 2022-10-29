@@ -69,3 +69,15 @@ COD Zombies Remake/ProjectSettings/ProjectVersion.txt
 COD Zombies Remake/ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
 COD Zombies Remake/Packages/packages-lock.json
 COD Zombies Remake/Packages/manifest.json
+COD Zombies Remake/ProjectSettings/Packages/com.unity.probuilder/Settings.json
+COD Zombies Remake/UserSettings/Search.settings
+*.fbx
+COD Zombies Remake/Assets/TextMesh Pro/Documentation/TextMesh Pro User Guide 2016.pdf
+COD Zombies Remake/Assets/TextMesh Pro/Fonts/LiberationSans - OFL.txt
+*.ttf
+*.mat
+*.txt
+*.shader
+*.cginc
+*.json
+*.png

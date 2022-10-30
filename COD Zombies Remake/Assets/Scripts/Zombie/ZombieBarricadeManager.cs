@@ -38,32 +38,39 @@ public class ZombieBarricadeManager : MonoBehaviour
     /*
      * Returns true when the barricade is fully destroyed
      */
-    public bool DestroyBarricade()
+    public DestroyActionState DestroyBarricade()
     {
         switch(curState)
         {
             case AttackBarricadeState.ARRIVED:
                 if (activeBarricade != null)
                 {
-                    // If there is an undestroyed, unclaimed plank, claim it and start to destroy it
-                    if(activeBarricade.BarricadeHasUnDestroyedPlanks())
+                    if (activeBarricade.playerInActionArea)
                     {
-                        if(activeBarricade.BarricadeHasUnclaimedPlanks())
-                        {
-                            curState = AttackBarricadeState.STARTING_ATTACK;
-                            activePlank = activeBarricade.ClaimUnDestroyedPlank();
-                            curStartAttackCooldown = StartAttackTime;
-                        }
-                        else
-                        {
-                            curState = AttackBarricadeState.WAITING;
-                            activeBarricade.PlankCreated.AddListener(CheckBarricadeDestroyedWhileWaiting);
-                        }
+                        return DestroyActionState.ATTACKING_PLAYER;
                     }
                     else
                     {
-                        curState = AttackBarricadeState.BARRICADE_DESTROYED;
-                        return true;
+                        // If there is an undestroyed, unclaimed plank, claim it and start to destroy it
+                        if (activeBarricade.BarricadeHasUnDestroyedPlanks())
+                        {
+                            if (activeBarricade.BarricadeHasUnclaimedPlanks())
+                            {
+                                curState = AttackBarricadeState.STARTING_ATTACK;
+                                activePlank = activeBarricade.ClaimUnDestroyedPlank();
+                                curStartAttackCooldown = StartAttackTime;
+                            }
+                            else
+                            {
+                                curState = AttackBarricadeState.WAITING;
+                                activeBarricade.PlankCreated.AddListener(CheckBarricadeDestroyedWhileWaiting);
+                            }
+                        }
+                        else
+                        {
+                            curState = AttackBarricadeState.BARRICADE_DESTROYED;
+                            return DestroyActionState.BARICADE_DESTROYED;
+                        }
                     }
                 }
                 break;
@@ -78,7 +85,7 @@ public class ZombieBarricadeManager : MonoBehaviour
                 }
                 break;
             case AttackBarricadeState.WAITING:
-                break;
+                return DestroyActionState.WAITING;
             case AttackBarricadeState.DESTROY_BARRICADE_PLANK:
                 activeBarricade.DestroyPlank(activePlank);
                 curState = AttackBarricadeState.ATTACK_COOLDOWN;
@@ -95,10 +102,10 @@ public class ZombieBarricadeManager : MonoBehaviour
                 }
                 break;
             case AttackBarricadeState.BARRICADE_DESTROYED:
-                return true;
+                return DestroyActionState.BARICADE_DESTROYED;
         }
 
-        return false;
+        return DestroyActionState.ACTIVELY_DESTROYING;
     }
 
     private void ActiveBarricadePlankAdded()
@@ -125,4 +132,11 @@ public class ZombieBarricadeManager : MonoBehaviour
         BARRICADE_DESTROYED
     }
 
+    public enum DestroyActionState
+    {
+        ACTIVELY_DESTROYING,
+        ATTACKING_PLAYER,
+        WAITING,
+        BARICADE_DESTROYED
+    }
 }

@@ -34,4 +34,9 @@ public class ZombieMaster : MonoBehaviour
     {
         return envManager.GetPlayerTransform();
     }
+
+    public PlayerManager GetPlayerManager()
+    {
+        return envManager.GetPlayerManager();
+    }
 }

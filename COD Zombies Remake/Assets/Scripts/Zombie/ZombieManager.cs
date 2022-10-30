@@ -9,9 +9,12 @@ public class ZombieManager : MonoBehaviour
     private ZombieHealthManager zHealthManager;
     private ZombieController zController;
     private ZombieBarricadeManager zBarricadeManager;
+    private ZombieAttackManager zAttackManager;
 
     [SerializeField]
     private ZombieState zombieState = ZombieState.SPAWNED;
+
+    private bool attackingFromBarricade = false;
 
     public void Setup(ZombieMaster _zMaster)
     {
@@ -23,8 +26,17 @@ public class ZombieManager : MonoBehaviour
         zHealthManager = gameObject.GetComponent<ZombieHealthManager>();
         zController = gameObject.GetComponent<ZombieController>();
         zBarricadeManager = gameObject.GetComponent<ZombieBarricadeManager>();
+        zAttackManager = gameObject.GetComponent<ZombieAttackManager>();
 
         SetupChildrenManagers();
+    }
+
+    private void SetupChildrenManagers()
+    {
+        zHealthManager.Setup(this);
+        zController.Setup(this);
+        zBarricadeManager.Setup(this);
+        zAttackManager.Setup(this);
     }
 
     private void Update()
@@ -42,13 +54,22 @@ public class ZombieManager : MonoBehaviour
                 break;
             // Triggered once entered action area trigger
             case ZombieState.BREAKING_WINDOW_BARRICADE:
-                if(zBarricadeManager.DestroyBarricade())
+                var destroyState = zBarricadeManager.DestroyBarricade();
+
+                switch(destroyState)
                 {
-                    zController.SetPlayerTransform(zMaster.GetPlayerTransform());
-                    zController.PathfindAtPlayer();
-                    zController.StartPathfinding();
-                    // TODO: Add traverse window state
-                    zombieState = ZombieState.PATHFINDING_TO_PLAYER;
+                    case ZombieBarricadeManager.DestroyActionState.ATTACKING_PLAYER:
+                        attackingFromBarricade = true;
+                        zombieState = ZombieState.ATTACKING_PLAYER;
+                        break;
+                    case ZombieBarricadeManager.DestroyActionState.BARICADE_DESTROYED:
+                        zController.SetPlayerTransform(zMaster.GetPlayerTransform());
+                        zController.PathfindAtPlayer();
+                        zController.StartPathfinding();
+
+                        // TODO: Add traverse window state
+                        zombieState = ZombieState.PATHFINDING_TO_PLAYER;
+                        break;
                 }
                 break;
             case ZombieState.PATHFINDING_TO_PLAYER:
@@ -59,16 +80,27 @@ public class ZombieManager : MonoBehaviour
                 }
                 break;
             case ZombieState.ATTACKING_PLAYER:
+                zAttackManager.AttackPlayer(zMaster.GetPlayerManager());
+                zombieState = ZombieState.ATTACKING_COOLDOWN;
+                break;
+            case ZombieState.ATTACKING_COOLDOWN:
+                if (zAttackManager.WaitNextAttack())
+                {
+                    if (attackingFromBarricade)
+                    {
+                        zombieState = ZombieState.BREAKING_WINDOW_BARRICADE;
+                        attackingFromBarricade = false;
+                    }
+                    else
+                    {
+                        zombieState = ZombieState.PATHFINDING_TO_PLAYER;
+                    }
+                }
                 break;
         }
     }
 
-    private void SetupChildrenManagers()
-    {
-        zHealthManager.Setup(this);
-        zController.Setup(this);
-        zBarricadeManager.Setup(this);
-    }
+    
 
     public void EnteredBarricadeActionArea(WindowBarricade barricade)
     {
@@ -91,6 +123,7 @@ public class ZombieManager : MonoBehaviour
         BREAKING_WINDOW_BARRICADE,
         TRAVERSING_WINDOW,
         ATTACKING_PLAYER,
+        ATTACKING_COOLDOWN,
         PATHFINDING_TO_PLAYER
     }
 

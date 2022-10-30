@@ -11,6 +11,8 @@ public class PlayerManager : MonoBehaviour
 
     private bool inBarricadeActionArea = false;
 
+    private bool healing = false;
+
     private Transform playerBody;
 
     private void Start()
@@ -49,6 +51,11 @@ public class PlayerManager : MonoBehaviour
                 barricadeBuilder.StopBuilding();
             }
         }
+
+        if(healing)
+        {
+            healing = !healthManager.HealOverTime();
+        }
     }
     
     public void EnteredBarricadeActionArea(WindowBarricade barricade)
@@ -61,5 +68,11 @@ public class PlayerManager : MonoBehaviour
     {
         barricadeBuilder.ExitedBarricadeActionArea(barricade);
         inBarricadeActionArea = false;
+    }
+
+    public void TakeDamage(float amount)
+    {
+        healthManager.TakeDamage(amount);
+        healing = true;
     }
 }

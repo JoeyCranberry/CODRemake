@@ -47,4 +47,9 @@ public class EnviromentManager : MonoBehaviour
     {
         return obstacleManager.GetClosestWindowBarricade(requestor);
     }
+
+    public PlayerManager GetPlayerManager()
+    {
+        return playerManager;
+    }
 }

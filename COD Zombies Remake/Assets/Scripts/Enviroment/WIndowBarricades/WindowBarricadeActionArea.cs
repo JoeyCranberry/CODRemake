@@ -21,6 +21,7 @@ public class WindowBarricadeActionArea : MonoBehaviour
             if(enteringZombie != null)
             {
                 enteringZombie.EnteredBarricadeActionArea(barricade);
+                barricade.ZombieEnteredActionArea();
             }
         }
         else
@@ -30,6 +31,7 @@ public class WindowBarricadeActionArea : MonoBehaviour
             if(playerManager != null)
             {
                 playerManager.EnteredBarricadeActionArea(barricade);
+                barricade.PlayerEnteredActionArea();
             }
         }
     }
@@ -42,6 +44,7 @@ public class WindowBarricadeActionArea : MonoBehaviour
             if (exitingZombie != null)
             {
                 exitingZombie.ExitedBarricadeActionArea(barricade);
+                barricade.ZombieExitedActionArea();
             }
         }
         else
@@ -50,6 +53,7 @@ public class WindowBarricadeActionArea : MonoBehaviour
             if (playerManager != null)
             {
                 playerManager.ExitedBarricadeActionArea(barricade);
+                barricade.PlayerExitedActionArea();
             }
         }
     }

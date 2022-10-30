@@ -23,6 +23,9 @@ public class WindowBarricade : MonoBehaviour
     private int startPlankCount;
     private int curPlankCount;
 
+    public bool playerInActionArea = false;
+    private int zombiesInActionArea = 0;
+
     private void Start()
     {
         plankBarricades = new List<WindowBarricadePlank>();
@@ -98,6 +101,29 @@ public class WindowBarricade : MonoBehaviour
     {
         return plankBarricades.FindIndex(p => p.isDestroyed == true) != -1;
     }
+
+    public void PlayerEnteredActionArea()
+    {
+        playerInActionArea = true;
+    }
+
+    public void PlayerExitedActionArea()
+    {
+        playerInActionArea = false;
+    }
+
+
+    // TODO: Doesn't yet handle when a zombie in the action area dies
+    public void ZombieEnteredActionArea()
+    {
+        zombiesInActionArea++;
+    }
+
+    public void ZombieExitedActionArea()
+    {
+        zombiesInActionArea--;
+    }
+
 
     private void PrintPlanks()
     {

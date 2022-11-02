@@ -8,6 +8,7 @@ public class PlayerManager : MonoBehaviour
     private PlayerHealthManager healthManager;
     private PlayerMoneyManager moneyManager;
     private PlayerBarricadeBuilder barricadeBuilder;
+    private PlayerWeaponManager weaponManager;
 
     private bool inBarricadeActionArea = false;
 
@@ -22,6 +23,7 @@ public class PlayerManager : MonoBehaviour
         healthManager = gameObject.GetComponent<PlayerHealthManager>();
         moneyManager = gameObject.GetComponent<PlayerMoneyManager>();
         barricadeBuilder = gameObject.GetComponent<PlayerBarricadeBuilder>();
+        weaponManager = gameObject.GetComponent<PlayerWeaponManager>();
 
         SetupChildrenManagers();
 
@@ -34,6 +36,7 @@ public class PlayerManager : MonoBehaviour
         healthManager.Setup(this);
         moneyManager.Setup(this);
         barricadeBuilder.Setup(this);
+        weaponManager.Setup(this);
     }
 
 

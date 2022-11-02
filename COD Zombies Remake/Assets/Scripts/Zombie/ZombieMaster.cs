@@ -4,20 +4,18 @@ using UnityEngine;
 
 public class ZombieMaster : MonoBehaviour
 {
-    public List<ZombieManager> zombieManagers;
+    public WaveManager WaveManager;
+
+    public GameObject ZombiePrefab;
 
     private EnviromentManager envManager;
 
-    // For now, simple just grab all the zombie manangers from children - will later be handled by wave mananger
-    private void Start()
-    {
-        zombieManagers.AddRange(gameObject.GetComponentsInChildren<ZombieManager>());
+    private List<ZombieManager> zManagers;
 
-        // Give all zombie managers a reference to the master
-        foreach(var manager in zombieManagers)
-        {
-            manager.Setup(this);
-        }
+    // For now, simple just grab all the zombie manangers from children - will later be handled by wave mananger
+    private void Awake()
+    {
+        zManagers = new List<ZombieManager>();
     }
    
     public void Setup(EnviromentManager _envManager)
@@ -38,5 +36,28 @@ public class ZombieMaster : MonoBehaviour
     public PlayerManager GetPlayerManager()
     {
         return envManager.GetPlayerManager();
+    }
+
+    public void SpawnZombieAtPosition(Vector3 position, float additionalHealth)
+    {
+        GameObject newZombie = Instantiate(ZombiePrefab, position, Quaternion.identity, gameObject.transform);
+
+        ZombieManager zManager = newZombie.GetComponent<ZombieManager>();
+
+        if (zManager != null)
+        {
+            zManager.Setup(this, additionalHealth);
+            zManagers.Add(zManager);
+        }
+    }
+
+    public void ZombieKilled(ZombieManager manager)
+    {
+        zManagers.Remove(manager);
+
+        if(zManagers.Count <= 0)
+        {
+            WaveManager.EndRound();
+        }
     }
 }

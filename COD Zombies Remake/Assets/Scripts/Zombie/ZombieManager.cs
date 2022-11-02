@@ -11,12 +11,14 @@ public class ZombieManager : MonoBehaviour
     private ZombieBarricadeManager zBarricadeManager;
     private ZombieAttackManager zAttackManager;
 
+    private float AdditionalRoundHealth;
+
     [SerializeField]
     private ZombieState zombieState = ZombieState.SPAWNED;
 
     private bool attackingFromBarricade = false;
 
-    public void Setup(ZombieMaster _zMaster)
+    public void Setup(ZombieMaster _zMaster, float AdditionalRoundHealth)
     {
         zMaster = _zMaster;
     }
@@ -33,7 +35,7 @@ public class ZombieManager : MonoBehaviour
 
     private void SetupChildrenManagers()
     {
-        zHealthManager.Setup(this);
+        zHealthManager.Setup(this, AdditionalRoundHealth);
         zController.Setup(this);
         zBarricadeManager.Setup(this);
         zAttackManager.Setup(this);
@@ -100,8 +102,6 @@ public class ZombieManager : MonoBehaviour
         }
     }
 
-    
-
     public void EnteredBarricadeActionArea(WindowBarricade barricade)
     {
         zController.StopPathfinding();
@@ -114,6 +114,13 @@ public class ZombieManager : MonoBehaviour
     public void ExitedBarricadeActionArea(WindowBarricade barricade)
     {
         zBarricadeManager.ExitedBarricadeActionArea(barricade);
+    }
+
+    public void ZombieKilled()
+    {
+        zMaster.ZombieKilled(this);
+
+        Destroy(gameObject);
     }
 
     private enum ZombieState

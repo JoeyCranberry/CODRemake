@@ -5,28 +5,42 @@ using UnityEngine;
 public class ZombieHealthManager : MonoBehaviour
 {
     private ZombieManager zManager;
+    private List<ZombieDamageReciever> damageRecievers;
 
-    public float StartHealth;
+    public float StartHealth = 100;
 
     [SerializeField]
     private float curHealth;
 
-    public void Setup(ZombieManager _zManager)
+    public void Setup(ZombieManager _zManager, float AdditionalRoundHealth)
     {
         zManager = _zManager;
+        curHealth = StartHealth + AdditionalRoundHealth;
     }
 
     private void Start()
     {
-        curHealth = StartHealth;
+        damageRecievers = new List<ZombieDamageReciever>();
+        damageRecievers.AddRange(gameObject.GetComponentsInChildren<ZombieDamageReciever>());
+        SetupDamageRecievers();
+    }
+
+    private void SetupDamageRecievers()
+    {
+        foreach(ZombieDamageReciever reciever in damageRecievers)
+        {
+            reciever.Setup(this);
+        }
     }
 
     public bool TakeDamage(float amount)
     {
+        Debug.Log("Zombie took " + amount + " damage, " + curHealth + " remaining");
         curHealth -= amount;
 
         if(curHealth <= 0f)
         {
+            zManager.ZombieKilled();
             return true;
         }
 

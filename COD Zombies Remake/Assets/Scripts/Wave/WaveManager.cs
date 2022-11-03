@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TMPro;
 
 public class WaveManager : MonoBehaviour
 {
@@ -14,10 +15,16 @@ public class WaveManager : MonoBehaviour
     public int MaximumZombies = 24;
     private float curTimeTillNextRound;
     
-
     public GameObject SpawnPositionParent;
     private List<SpawnPosition> zombieSpawnPositions;
 
+    public TMP_Text RoundDisplayText;
+
+    private AudioSource audioSource;
+    public AudioClip StartRoundClip;
+    public AudioClip EndRoundClip;
+
+    [SerializeField]
     private WaveState curState;
 
     private int curRound = 1;
@@ -30,6 +37,8 @@ public class WaveManager : MonoBehaviour
 
         zombieSpawnPositions = new List<SpawnPosition>();
         zombieSpawnPositions.AddRange(SpawnPositionParent.GetComponentsInChildren<SpawnPosition>());
+
+        audioSource = gameObject.AddComponent<AudioSource>();
 
         StartRound();
     }
@@ -56,7 +65,10 @@ public class WaveManager : MonoBehaviour
     public void EndRound()
     {
         curTimeTillNextRound = TimeBetweenRounds;
-        
+
+        audioSource.clip = EndRoundClip;
+        audioSource.Play();
+
         curState = WaveState.WAVE_ENDED;
         curRound++;
     }
@@ -65,8 +77,20 @@ public class WaveManager : MonoBehaviour
     {
         curState = WaveState.WAVE_STARTING;
         SpawnZombies();
+        UpdateRoundDisplayText();
+
+        if(curRound > 0 )
+        {
+            audioSource.clip = StartRoundClip;
+            audioSource.Play();
+        }
 
         curState = WaveState.WAVE_RUNNING;
+    }
+
+    private void UpdateRoundDisplayText()
+    {
+        RoundDisplayText.text = curRound.ToString();
     }
 
     private void SpawnZombies()

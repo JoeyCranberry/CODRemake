@@ -35,7 +35,6 @@ public class ZombieHealthManager : MonoBehaviour
 
     public bool TakeDamage(float amount)
     {
-        Debug.Log("Zombie took " + amount + " damage, " + curHealth + " remaining");
         curHealth -= amount;
 
         if(curHealth <= 0f)

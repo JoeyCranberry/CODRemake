@@ -15,8 +15,12 @@ public class ZombieBarricadeManager : MonoBehaviour
     private WindowBarricade activeBarricade;
     private WindowBarricadePlank activePlank;
 
+    private bool inBarricadeActionArea = false;
+
     [SerializeField]
     private AttackBarricadeState curState;
+
+    public bool PrintToDebug = false;
 
     public void Setup(ZombieManager _zManager)
     {
@@ -25,14 +29,23 @@ public class ZombieBarricadeManager : MonoBehaviour
 
     public void EnteredBarricadeActionArea(WindowBarricade barricade)
     {
-        barricade.PlankCreated.AddListener(ActiveBarricadePlankAdded);
-        activeBarricade = barricade;
-        curState = AttackBarricadeState.ARRIVED;
+        // Fixes issue where zombies can trigger the action area multiple times resetting their state
+        if(!inBarricadeActionArea)
+        {
+            inBarricadeActionArea = true;
+            barricade.PlankCreated.AddListener(ActiveBarricadePlankAdded);
+            activeBarricade = barricade;
+            curState = AttackBarricadeState.ARRIVED;
+
+            if (PrintToDebug)
+                Debug.Log("Reached barricade for " + barricade.gameObject.name);
+        }
     }
 
     public void ExitedBarricadeActionArea(WindowBarricade barricade)
     {
         barricade.PlankCreated.RemoveListener(ActiveBarricadePlankAdded);
+        inBarricadeActionArea = false;
     }
 
     /*
@@ -47,6 +60,8 @@ public class ZombieBarricadeManager : MonoBehaviour
                 {
                     if (activeBarricade.playerInActionArea)
                     {
+                        if (PrintToDebug)
+                            Debug.Log("Player is in action area, attacking ");
                         return DestroyActionState.ATTACKING_PLAYER;
                     }
                     else
@@ -54,20 +69,26 @@ public class ZombieBarricadeManager : MonoBehaviour
                         // If there is an undestroyed, unclaimed plank, claim it and start to destroy it
                         if (activeBarricade.BarricadeHasUnDestroyedPlanks())
                         {
-                            if (activeBarricade.BarricadeHasUnclaimedPlanks())
+                            if (activeBarricade.BarricadeHasUnclaimedUnDestroyedPlanks())
                             {
+                                if (PrintToDebug)
+                                    Debug.Log("Barricade has undestroyed and undestroyed planks, claiming one.");
                                 curState = AttackBarricadeState.STARTING_ATTACK;
                                 activePlank = activeBarricade.ClaimUnDestroyedPlank();
                                 curStartAttackCooldown = StartAttackTime;
                             }
                             else
                             {
+                                if (PrintToDebug)
+                                    Debug.Log("Barricade has undestroyed planks, but they are all claimed.");
                                 curState = AttackBarricadeState.WAITING;
                                 activeBarricade.PlankCreated.AddListener(CheckBarricadeDestroyedWhileWaiting);
                             }
                         }
                         else
                         {
+                            if (PrintToDebug)
+                                Debug.Log("Barricade does not have any undestroyed planks - all done.");
                             curState = AttackBarricadeState.BARRICADE_DESTROYED;
                             return DestroyActionState.BARICADE_DESTROYED;
                         }
@@ -81,6 +102,8 @@ public class ZombieBarricadeManager : MonoBehaviour
                 }
                 else
                 {
+                    if (PrintToDebug)
+                        Debug.Log("Start time elapsed, destroying plank.");
                     curState = AttackBarricadeState.DESTROY_BARRICADE_PLANK;
                 }
                 break;
@@ -98,6 +121,8 @@ public class ZombieBarricadeManager : MonoBehaviour
                 }
                 else
                 {
+                    if (PrintToDebug)
+                        Debug.Log("Finished post-destroy wait, setting state to arrived.");
                     curState = AttackBarricadeState.ARRIVED;
                 }
                 break;

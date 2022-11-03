@@ -81,7 +81,7 @@ public class WindowBarricade : MonoBehaviour
 
     public WindowBarricadePlank ClaimUnDestroyedPlank()
     {
-        WindowBarricadePlank unclaimedPlank = plankBarricades.Where(p => p.isClaimed == false).FirstOrDefault();
+        WindowBarricadePlank unclaimedPlank = plankBarricades.Where(p => p.isClaimed == false && p.isDestroyed == false).FirstOrDefault();
         unclaimedPlank.Claim();
 
         return unclaimedPlank;
@@ -92,9 +92,9 @@ public class WindowBarricade : MonoBehaviour
         return plankBarricades.FindIndex(p => p.isDestroyed == false) != -1;
     }
 
-    public bool BarricadeHasUnclaimedPlanks()
+    public bool BarricadeHasUnclaimedUnDestroyedPlanks()
     {
-        return plankBarricades.FindIndex(p => p.isClaimed == false) != -1;
+        return plankBarricades.FindIndex(p => p.isClaimed == false && p.isDestroyed == false) != -1;
     }
 
     public bool BarricadeHasDestroyedPlanks()

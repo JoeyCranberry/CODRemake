@@ -15,12 +15,23 @@ public class ZombieBarricadeManager : MonoBehaviour
     private WindowBarricade activeBarricade;
     private WindowBarricadePlank activePlank;
 
+    private GameObject leftArm;
+    private GameObject rightArm;
+
     private bool inBarricadeActionArea = false;
 
     [SerializeField]
-    private AttackBarricadeState curState;
+    private AttackBarricadeState curState = AttackBarricadeState.NOT_IN_ACTION_ZONE;
 
     public bool PrintToDebug = false;
+    [SerializeField]
+    private int planksDestroyed = 0;
+
+    private void Start()
+    {
+        leftArm = transform.Find("LeftArm").gameObject;
+        rightArm = transform.Find("RightArm").gameObject;
+    }
 
     public void Setup(ZombieManager _zManager)
     {
@@ -33,7 +44,7 @@ public class ZombieBarricadeManager : MonoBehaviour
         if(!inBarricadeActionArea)
         {
             inBarricadeActionArea = true;
-            barricade.PlankCreated.AddListener(ActiveBarricadePlankAdded);
+            barricade.PlankMadeAvailable.AddListener(ActiveBarricadePlankMadeAvailable);
             activeBarricade = barricade;
             curState = AttackBarricadeState.ARRIVED;
 
@@ -44,7 +55,7 @@ public class ZombieBarricadeManager : MonoBehaviour
 
     public void ExitedBarricadeActionArea(WindowBarricade barricade)
     {
-        barricade.PlankCreated.RemoveListener(ActiveBarricadePlankAdded);
+        barricade.PlankMadeAvailable.RemoveListener(ActiveBarricadePlankMadeAvailable);
         inBarricadeActionArea = false;
     }
 
@@ -73,16 +84,22 @@ public class ZombieBarricadeManager : MonoBehaviour
                             {
                                 if (PrintToDebug)
                                     Debug.Log("Barricade has undestroyed and undestroyed planks, claiming one.");
-                                curState = AttackBarricadeState.STARTING_ATTACK;
+
                                 activePlank = activeBarricade.ClaimUnDestroyedPlank();
-                                curStartAttackCooldown = StartAttackTime;
+                                if(activePlank != null)
+                                {
+                                    curStartAttackCooldown = StartAttackTime;
+                                    RotateArms();
+                                    curState = AttackBarricadeState.STARTING_ATTACK;
+                                }
                             }
                             else
                             {
                                 if (PrintToDebug)
                                     Debug.Log("Barricade has undestroyed planks, but they are all claimed.");
+
+                                activeBarricade.PlankMadeAvailable.AddListener(CheckBarricadeDestroyedWhileWaiting);
                                 curState = AttackBarricadeState.WAITING;
-                                activeBarricade.PlankCreated.AddListener(CheckBarricadeDestroyedWhileWaiting);
                             }
                         }
                         else
@@ -123,6 +140,9 @@ public class ZombieBarricadeManager : MonoBehaviour
                 {
                     if (PrintToDebug)
                         Debug.Log("Finished post-destroy wait, setting state to arrived.");
+
+                    planksDestroyed++;
+                    UnRotateArms();
                     curState = AttackBarricadeState.ARRIVED;
                 }
                 break;
@@ -133,7 +153,7 @@ public class ZombieBarricadeManager : MonoBehaviour
         return DestroyActionState.ACTIVELY_DESTROYING;
     }
 
-    private void ActiveBarricadePlankAdded()
+    private void ActiveBarricadePlankMadeAvailable()
     {
         if(curState == AttackBarricadeState.WAITING)
         {
@@ -147,8 +167,29 @@ public class ZombieBarricadeManager : MonoBehaviour
         curState = AttackBarricadeState.ARRIVED;
     }
 
+    public void UnclaimActivePlank()
+    {
+        if(!activePlank.isDestroyed)
+        {
+            activePlank.UnClaim();
+        }
+    }
+
+    private void RotateArms()
+    {
+        leftArm.transform.rotation = Quaternion.Euler(new Vector3(-32f, leftArm.transform.rotation.eulerAngles.y, leftArm.transform.rotation.eulerAngles.z));
+        rightArm.transform.rotation = Quaternion.Euler(new Vector3(-32f, rightArm.transform.rotation.eulerAngles.y, rightArm.transform.rotation.eulerAngles.z));
+    }
+
+    private void UnRotateArms()
+    {
+        leftArm.transform.rotation = Quaternion.Euler(new Vector3(0f, leftArm.transform.rotation.eulerAngles.y, leftArm.transform.rotation.eulerAngles.z));
+        rightArm.transform.rotation = Quaternion.Euler(new Vector3(0f, rightArm.transform.rotation.eulerAngles.y, rightArm.transform.rotation.eulerAngles.z));
+    }
+
     private enum AttackBarricadeState
     { 
+        NOT_IN_ACTION_ZONE,
         ARRIVED,
         STARTING_ATTACK,
         DESTROY_BARRICADE_PLANK,

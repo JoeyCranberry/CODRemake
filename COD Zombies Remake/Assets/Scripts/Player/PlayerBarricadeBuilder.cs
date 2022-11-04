@@ -41,14 +41,14 @@ public class PlayerBarricadeBuilder : MonoBehaviour
 
     public void EnteredBarricadeActionArea(WindowBarricade barricade)
     {
-        barricade.PlankCreated.AddListener(ActiveBarricadePlankRemoved);
+        barricade.PlankMadeAvailable.AddListener(ActiveBarricadePlankRemoved);
         activeBarricade = barricade;
         CheckDisplayBuildPrompt(true, barricade);
     }
 
     public void ExitedBarricadeActionArea(WindowBarricade barricade)
     {
-        barricade.PlankCreated.RemoveListener(ActiveBarricadePlankRemoved);
+        barricade.PlankMadeAvailable.RemoveListener(ActiveBarricadePlankRemoved);
         activeBarricade = null;
         CheckDisplayBuildPrompt(false, barricade);
 

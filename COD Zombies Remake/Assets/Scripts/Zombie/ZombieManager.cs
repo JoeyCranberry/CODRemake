@@ -119,6 +119,7 @@ public class ZombieManager : MonoBehaviour
     public void ZombieKilled()
     {
         zMaster.ZombieKilled(this);
+        zBarricadeManager.UnclaimActivePlank();
 
         Destroy(gameObject);
     }

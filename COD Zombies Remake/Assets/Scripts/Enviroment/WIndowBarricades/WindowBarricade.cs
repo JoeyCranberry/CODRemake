@@ -16,7 +16,7 @@ public class WindowBarricade : MonoBehaviour
     public WindowBarricadeActionArea ZombieActionArea;
 
     // Events
-    public UnityEvent PlankCreated;
+    public UnityEvent PlankMadeAvailable;
     public UnityEvent PlankDestroyed;
 
     // Plank Count
@@ -73,18 +73,26 @@ public class WindowBarricade : MonoBehaviour
 
     public void AddPlank()
     {
-        if (PlankCreated != null)
+        if (PlankMadeAvailable != null)
         {
-            PlankCreated.Invoke();
+            PlankMadeAvailable.Invoke();
         }
     }
 
     public WindowBarricadePlank ClaimUnDestroyedPlank()
     {
-        WindowBarricadePlank unclaimedPlank = plankBarricades.Where(p => p.isClaimed == false && p.isDestroyed == false).FirstOrDefault();
-        unclaimedPlank.Claim();
+        int indexOf = plankBarricades.FindIndex(p => p.isClaimed == false && p.isDestroyed == false);
+        if(indexOf < 0 )
+        {
+            return null;
+        }
+        else
+        {
+            WindowBarricadePlank unclaimedPlank = plankBarricades[indexOf];
+            unclaimedPlank.Claim();
 
-        return unclaimedPlank;
+            return unclaimedPlank;
+        }
     }
 
     public bool BarricadeHasUnDestroyedPlanks()
@@ -122,6 +130,11 @@ public class WindowBarricade : MonoBehaviour
     public void ZombieExitedActionArea()
     {
         zombiesInActionArea--;
+    }
+
+    public void UnclaimPlank(WindowBarricadePlank plank)
+    {
+        plank.UnClaim();
     }
 
 
